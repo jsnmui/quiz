@@ -41,4 +41,8 @@ public class UserService {
     public void setUserStatus(int userId, boolean isActive) {
         userDao.updateUserStatus(userId, isActive);
     }
+
+    public List<User> getAllUsers() {
+        return userDao.getAllUsers(); // delegate to DAO
+    }
 }

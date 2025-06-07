@@ -9,7 +9,8 @@ import java.sql.Timestamp;
 public class QuizResult {
     private int quizId;
     private Timestamp startTime;
-    private Timestamp endTime; // ← This is what was missing
+    private Timestamp endTime;
+    private String categoryName;
     private String userFullName;
     private int categoryId;
     private int numQuestions;

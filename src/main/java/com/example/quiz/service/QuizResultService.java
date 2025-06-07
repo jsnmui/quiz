@@ -15,14 +15,14 @@ public class QuizResultService {
         this.quizResultDao = quizResultDao;
     }
 
-    public List<QuizResult> getQuizResults(int offset, int limit, Integer categoryId, Integer userId) {
-        return quizResultDao.getQuizResults(offset, limit, categoryId, userId);
+
+    public List<QuizResult> getQuizResults(int offset, int limit, String categoryName, String userName) {
+        return quizResultDao.getQuizResults(offset, limit, categoryName, userName);
     }
 
-    public int countQuizResults(Integer categoryId, Integer userId) {
-        return quizResultDao.countQuizResults(categoryId, userId);
+    public int countQuizResults(String categoryName, String userName) {
+        return quizResultDao.countQuizResults(categoryName, userName);
     }
-
     public QuizResult getQuizResultById(int quizId) {
         return quizResultDao.getQuizResultById(quizId);
     }

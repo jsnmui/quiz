@@ -33,8 +33,24 @@
 
 <!-- Filter Form -->
 <form action="/admin/results" method="get" style="text-align: center; margin-bottom: 20px;">
-    Category ID: <input type="text" name="categoryId" value="${categoryId != null ? categoryId : ''}" />
-    User ID: <input type="text" name="userId" value="${userId != null ? userId : ''}" />
+    Category:
+    <select name="categoryName">
+        <option value="">All</option>
+        <c:forEach var="cat" items="${categoryList}">
+            <option value="${cat.name}" <c:if test="${categoryName == cat.name}">selected</c:if>>${cat.name}</option>
+        </c:forEach>
+    </select>
+
+    User:
+    <select name="userName">
+        <option value="">All</option>
+        <c:forEach var="name" items="${userNameList}">
+            <option value="${name}" <c:if test="${userName == name}">selected</c:if>>
+                    ${name}
+            </option>
+        </c:forEach>
+    </select>
+
     <button type="submit">Filter</button>
     <a href="/admin/results?reset=true" style="margin-left: 10px;">Reset</a>
 </form>
@@ -44,7 +60,7 @@
     <thead>
     <tr>
         <th>Taken Time</th>
-        <th>Category ID</th>
+        <th>Category</th>
         <th>User</th>
         <th>Questions</th>
         <th>Score</th>
@@ -55,7 +71,7 @@
     <c:forEach var="res" items="${results}">
         <tr>
             <td>${res.endTime}</td>
-            <td>${res.categoryId}</td>
+            <td>${res.categoryName}</td>
             <td>${res.userFullName}</td>
             <td>${res.numQuestions}</td>
             <td>${res.score}</td>
@@ -68,7 +84,7 @@
 <!-- Pagination -->
 <div class="pagination">
     <c:forEach var="i" begin="1" end="${totalPages}">
-        <a href="/admin/results?page=${i}&categoryId=${categoryId}&userId=${userId}">${i}</a>
+        <a href="/admin/results?page=${i}&categoryName=${categoryName}&userName=${userName}">${i}</a>
     </c:forEach>
 </div>
 

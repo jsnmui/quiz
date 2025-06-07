@@ -36,5 +36,5 @@ public class QuestionAdminController {
         return "redirect:/admin/questions";
     }
 
-    // Add /edit endpoints will follow
+
 }

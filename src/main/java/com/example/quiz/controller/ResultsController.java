@@ -26,7 +26,7 @@ public class ResultsController {
 
         Quiz quiz = quizService.getQuizById(quizId);
 
-        // ✅ Allow if user is admin or it's their own quiz
+        //  Allow if user is admin or it's their own quiz
         if (!user.isAdmin() && quiz.getUserId() != user.getUserId()) {
             return "unauthorized";
         }

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -19,31 +20,6 @@ public class QuizResultDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<QuizResult> getQuizResults(int offset, int limit, Integer categoryId, Integer userId) {
-        StringBuilder sql = new StringBuilder("SELECT q.quiz_id, q.time_start, q.time_end, u.firstname, u.lastname, q.category_id, COUNT(qq.question_id) AS num_questions, ");
-        sql.append("SUM(CASE WHEN qq.user_choice_id = c.choice_id AND c.is_correct THEN 1 ELSE 0 END) AS score ");
-        sql.append("FROM quiz q ");
-        sql.append("JOIN user u ON q.user_id = u.user_id ");
-        sql.append("JOIN quizquestion qq ON q.quiz_id = qq.quiz_id ");
-        sql.append("JOIN choice c ON qq.user_choice_id = c.choice_id ");
-        sql.append("JOIN question ques ON qq.question_id = ques.question_id ");
-        sql.append("WHERE 1=1 ");
-
-        if (categoryId != null) sql.append("AND q.category_id = ").append(categoryId).append(" ");
-        if (userId != null) sql.append("AND q.user_id = ").append(userId).append(" ");
-
-        sql.append("GROUP BY q.quiz_id, q.time_start, q.time_end, u.firstname, u.lastname, q.category_id ");
-        sql.append("ORDER BY q.time_end DESC LIMIT ? OFFSET ?");
-
-        return jdbcTemplate.query(sql.toString(), new QuizResultRowMapper(), limit, offset);
-    }
-
-    public int countQuizResults(Integer categoryId, Integer userId) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT q.quiz_id) FROM quiz q WHERE 1=1 ");
-        if (categoryId != null) sql.append("AND q.category_id = ").append(categoryId).append(" ");
-        if (userId != null) sql.append("AND q.user_id = ").append(userId).append(" ");
-        return jdbcTemplate.queryForObject(sql.toString(), Integer.class);
-    }
 
     public QuizResult getQuizResultById(int quizId) {
         String sql = "SELECT q.quiz_id, q.time_start, q.time_end, u.firstname, u.lastname, q.category_id, " +
@@ -62,9 +38,60 @@ public class QuizResultDao {
             result.setEndTime(rs.getTimestamp("time_end"));
             result.setUserFullName(rs.getString("firstname") + " " + rs.getString("lastname"));
             result.setCategoryId(rs.getInt("category_id"));
+            result.setCategoryName(rs.getString("category_name"));
             result.setNumQuestions(rs.getInt("num_questions"));
             result.setScore(rs.getInt("score"));
             return result;
         }
     }
+
+
+    public List<QuizResult> getQuizResults(int offset, int limit, String categoryName, String userName) {
+        StringBuilder sql = new StringBuilder("SELECT q.quiz_id, q.time_start, q.time_end, q.category_id, u.firstname, u.lastname, " +
+                "COUNT(qq.question_id) AS num_questions, SUM(CASE WHEN c.is_correct THEN 1 ELSE 0 END) AS score, " +
+                "cat.name AS category_name " +
+                "FROM quiz q " +
+                "JOIN quizquestion qq ON q.quiz_id = qq.quiz_id " +
+                "JOIN choice c ON qq.user_choice_id = c.choice_id " +
+                "JOIN user u ON q.user_id = u.user_id JOIN category cat ON q.category_id = cat.category_id WHERE 1=1");
+
+        List<Object> params = new ArrayList<>();
+
+        if (categoryName != null && !categoryName.isEmpty()) {
+            sql.append(" AND cat.name LIKE ?");
+            params.add("%" + categoryName + "%");
+        }
+
+        if (userName != null && !userName.isEmpty()) {
+            sql.append(" AND CONCAT(u.firstname, ' ', u.lastname) LIKE ?");
+            params.add("%" + userName + "%");
+        }
+
+        sql.append(" GROUP BY q.quiz_id, q.time_start, q.time_end, q.category_id, u.firstname, u.lastname, cat.name  ORDER BY q.time_end DESC LIMIT ? OFFSET ?");
+        params.add(limit);
+        params.add(offset);
+
+        return jdbcTemplate.query(sql.toString(), params.toArray(), new QuizResultRowMapper());
+    }
+
+    public int countQuizResults(String categoryName, String userName) {
+        StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT q.quiz_id) FROM quiz q " +
+                "JOIN user u ON q.user_id = u.user_id " +
+                "JOIN category cat ON q.category_id = cat.category_id WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
+
+        if (categoryName != null && !categoryName.isEmpty()) {
+            sql.append(" AND cat.name LIKE ?");
+            params.add("%" + categoryName + "%");
+        }
+
+        if (userName != null && !userName.isEmpty()) {
+            sql.append(" AND CONCAT(u.firstname, ' ', u.lastname) LIKE ?");
+            params.add("%" + userName + "%");
+        }
+
+        return jdbcTemplate.queryForObject(sql.toString(), params.toArray(), Integer.class);
+    }
+
 }

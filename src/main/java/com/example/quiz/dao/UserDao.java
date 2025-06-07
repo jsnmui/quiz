@@ -68,6 +68,9 @@ public class UserDao {
         jdbcTemplate.update(sql, isActive, userId);
     }
 
-
+    public List<User> getAllUsers() {
+        String sql = "SELECT * FROM User WHERE is_active = 1";
+        return jdbcTemplate.query(sql, new UserRowMapper());
+    }
 
 }
