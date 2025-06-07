@@ -13,7 +13,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @RequiredArgsConstructor
@@ -48,14 +50,14 @@ public class ResultManagementController {
 
         List<Category> categoryList = questionService.getAllCategories();
         List<User> userList = userService.getAllUsers();
-        List<String> userNameList = new ArrayList<>();
+        Set<String> userNameSet = new HashSet<>();
 
         for (User user : userList) {
-            userNameList.add(user.getFirstname() + " " + user.getLastname());
+            userNameSet.add(user.getFirstname() + " " + user.getLastname());
 
         }
 
-
+        List <String> userNameList = new ArrayList<>(userNameSet);
         model.addAttribute("results", results);
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);

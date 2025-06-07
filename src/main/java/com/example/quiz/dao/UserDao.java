@@ -69,7 +69,7 @@ public class UserDao {
     }
 
     public List<User> getAllUsers() {
-        String sql = "SELECT * FROM User WHERE is_active = 1";
+        String sql = "SELECT * FROM User u JOIN Quiz q on q.user_id = u.user_id WHERE u.is_active = 1";
         return jdbcTemplate.query(sql, new UserRowMapper());
     }
 
