@@ -1,0 +1,1 @@
+One challenge that I face was leaning how to use filters to redirection. I had a situation where the login page redirected to itself over and over. I realized that I needed to exclude /login from redirection in my code.
